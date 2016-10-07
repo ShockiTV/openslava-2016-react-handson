@@ -28,7 +28,10 @@
 // away without even thinking of the Board.
 var Pawn = React.createClass({
   render: function () {
-    return <span>&#9817;</span>;
+    return <div style={{
+        fontSize: 40,
+        fontWeight: 'bold'
+      }}>&#9817;</div>;
   }
 });
 
