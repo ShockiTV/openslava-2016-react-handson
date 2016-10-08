@@ -41,7 +41,11 @@ var Square = React.createClass({
     var stroke = this.props.isBlack ? 'white' : 'black';
 
     if (this.props.isSelected) {
-        fill = 'green';
+        stroke = 'red';
+    }
+
+    if (this.props.isHighlighted) {
+        fill = this.props.isBlack ? 'green' : 'yellow';
     }
 
     return (
@@ -67,16 +71,18 @@ var Board = React.createClass({
       var y = Math.floor(i / 8);
       var isBlack = (x + y) % 2 === 1;
 
-      var isSelected = (i === this.props.selected);
-      var piece = (this.props.boardData[i] === 'w') ? <Pawn /> : <div>&nbsp;</div>;
+      var isHighlighted = this.props.boardData[i].isHighlighted;
+      var isSelected = (i === this.props.selectedPawn);
+      var piece = (this.props.boardData[i].fig === 'w') ? <Pawn /> : null;
+      var cursor = (isHighlighted || piece) ? 'pointer' : 'auto';
 
       return (
         <div
             key={i}
-            style={{ width: '12.5%', height: '12.5%' }}
+            style={{ width: '12.5%', height: '12.5%', cursor: cursor }}
             onClick={this.handleSquareClick.bind(this, x, y)}
         >
-            <Square isBlack={isBlack} isSelected={isSelected}>
+            <Square isBlack={isBlack} isSelected={isSelected} isHighlighted={isHighlighted}>
               {piece}
             </Square>
         </div>
@@ -102,31 +108,62 @@ var Board = React.createClass({
   }
 });
 
+function toXY(index) {
+    return (index != null)
+        ? {x: index % 8, y: Math.floor(index / 8)}
+        : {x: -10, y: -10};
+};
+
+function toIndex(x, y) {
+    return y * 8 + x;
+};
+
 var Game = React.createClass({
+    canSelectPawn: function(index) {
+        return (this.state.boardData[index].fig === 'w');
+    },
+
+    canMovePawn: function(fromIndex, toIndex) {
+        var from = toXY(fromIndex);
+        var to = toXY(toIndex);
+        return (Math.abs(from.x - to.x) === 1 && Math.abs(from.y - to.y) === 1)
+    },
+
+    updateCanMoveArea: function(boardData, selectedPawn) {
+        boardData.forEach(function(squareData, index) {
+            squareData.isHighlighted = this.canMovePawn(selectedPawn, index);
+        }, this);
+
+        return boardData;
+    },
+
     handleClick: function(x, y) {
         var index = y * 8 + x;
-        var selected = (index === this.state.selected) ? null : index
-        this.setState({selected: selected});
+        var selectedPawn = (this.canSelectPawn(index) && index !== this.state.selectedPawn) ? index : null;
+
+        var boardData = this.updateCanMoveArea(this.state.boardData, selectedPawn);
+
+        this.setState({selectedPawn: selectedPawn, boardData: boardData});
     },
 
     getInitialState: function() {
         var boardData = [];
         for (let i = 0; i < 64; i++) {
-            boardData.push('');
+            boardData.push({fig: '', isHighlighted: false});
         }
-        boardData[0] = boardData[2] = boardData[4] = boardData[6] = 'w';
-        boardData[9] = boardData[11] = boardData[13] = boardData[15] = 'w';
+        boardData[0].fig = boardData[2].fig = boardData[4].fig = boardData[6].fig = 'w';
+        boardData[9].fig = boardData[11].fig = boardData[13].fig = boardData[15].fig = 'w';
 
-        var selected = null;
+        var selectedPawn = null;
 
-        return { boardData: boardData, selected: selected };
+        return { boardData: boardData, selectedPawn: selectedPawn };
     },
 
     render: function () {
         return (
             <Board
                 boardData={this.state.boardData}
-                selected={this.state.selected}
+                selectedPawn={this.state.selectedPawn}
                 onClick={this.handleClick}
             />);
     }
