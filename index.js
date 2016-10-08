@@ -186,26 +186,64 @@ var Game = React.createClass({
     }
 });
 
-ReactDOM.render(
-    <Game />, document.getElementById('app'));
+
+// ReactDOM.render(
+//     <Game />, document.getElementById('app'));
 
 
+function getInitialState() {
+    var boardData = [];
+    for (let i = 0; i < 64; i++) {
+        boardData.push({fig: '', isHighlighted: false});
+    }
+    boardData[0].fig = boardData[2].fig = boardData[4].fig = boardData[6].fig = 'w';
+    boardData[9].fig = boardData[11].fig = boardData[13].fig = boardData[15].fig = 'w';
 
-// function counterStore(state, action) {
-//     if (typeof state === 'undefined') {
-//         return 0;
-//     }
-//
-//     switch (action.type) {
-//         case 'INCREMENT':
-//         return state + 1
-//         case 'DECREMENT':
-//         return state - 1
-//         default:
-//         return state;
-//     }
-// };
-// let store = Redux.createStore(counterStore);
+    var selectedPawn = null;
+
+    return { board: { boardData: boardData, selectedPawn: selectedPawn } };
+};
+
+function boardReducer(state, action) {
+    if (typeof state === 'undefined') {
+        return getInitialState();
+    }
+
+    switch (action.type) {
+        default:
+            return state;
+    }
+};
+
+let store = Redux.createStore(boardReducer, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
+
+var clickOnSquareAction = function() {
+    return {
+        type: 'SQUARECLICK'
+    };
+};
+
+var BoardContainer = React.createClass({
+    render: function() {
+        return (
+            <Board
+                boardData={this.props.boardData}
+                selectedPawn={this.props.selectedPawn}
+                onClick={this.props.clickOnSquareAction}
+            />
+        );
+    }
+});
+const mapStateToProps = (state) => {
+    return {
+        boardData: state.board.boardData,
+        selectedPawn: state.board.selectedPawn
+    }
+};
+const mapDispatchToProps = { clickOnSquareAction };
+BoardContainer = ReactRedux.connect(mapStateToProps, mapDispatchToProps)(BoardContainer);
+
+
 //
 //
 //
@@ -225,17 +263,16 @@ ReactDOM.render(
 //
 //
 //
-// const App = (props) => (
-//     <ReactRedux.Provider store={store}>
-//         <MessageContainer name="Openslava #3" />
-//     </ReactRedux.Provider>
-// );
-//
-//
-// ReactDOM.render(
-//     <App />,
-//     document.getElementById('app')
-// );
+const App = (props) => (
+    <ReactRedux.Provider store={store}>
+        <BoardContainer />
+    </ReactRedux.Provider>
+);
+
+ReactDOM.render(
+    <App />,
+    document.getElementById('app')
+);
 
 
 
