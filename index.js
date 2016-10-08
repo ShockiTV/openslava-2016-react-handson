@@ -123,7 +123,7 @@ var Game = React.createClass({
         return (this.state.boardData[index].fig === 'w');
     },
 
-    canMovePawn: function(fromIndex, toIndex) {
+    isAllowedMove: function(fromIndex, toIndex) {
         var from = toXY(fromIndex);
         var to = toXY(toIndex);
         return (Math.abs(from.x - to.x) === 1 && Math.abs(from.y - to.y) === 1)
@@ -131,7 +131,7 @@ var Game = React.createClass({
 
     updateCanMoveArea: function(boardData, selectedPawn) {
         boardData.forEach(function(squareData, index) {
-            squareData.isHighlighted = this.canMovePawn(selectedPawn, index);
+            squareData.isHighlighted = this.isAllowedMove(selectedPawn, index);
         }, this);
 
         return boardData;
@@ -143,11 +143,14 @@ var Game = React.createClass({
         var boardData = this.state.boardData;
 
         // If pawn selected, check if we move the Pawn
-        if (this.state.selectedPawn) {
-            if (this.canMovePawn(this.state.selectedPawn, toIndex(x, y))) {
-                // move Pawn
-                boardData[toIndex(x, y)].fig = boardData[this.state.selectedPawn].fig;
-                boardData[this.state.selectedPawn].fig = '';
+        // REMOVE '!= null' and watch first Pawn
+        if (this.state.selectedPawn != null) {
+            if (this.isAllowedMove(this.state.selectedPawn, toIndex(x, y))) {
+                if (boardData[toIndex(x, y)].fig === '') {
+                    // move Pawn
+                    boardData[toIndex(x, y)].fig = boardData[this.state.selectedPawn].fig;
+                    boardData[this.state.selectedPawn].fig = '';
+                }
             }
         }
 
