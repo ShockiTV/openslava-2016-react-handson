@@ -139,9 +139,21 @@ var Game = React.createClass({
 
     handleClick: function(x, y) {
         var index = y * 8 + x;
+
+        var boardData = this.state.boardData;
+
+        // If pawn selected, check if we move the Pawn
+        if (this.state.selectedPawn) {
+            if (this.canMovePawn(this.state.selectedPawn, toIndex(x, y))) {
+                // move Pawn
+                boardData[toIndex(x, y)].fig = boardData[this.state.selectedPawn].fig;
+                boardData[this.state.selectedPawn].fig = '';
+            }
+        }
+
         var selectedPawn = (this.canSelectPawn(index) && index !== this.state.selectedPawn) ? index : null;
 
-        var boardData = this.updateCanMoveArea(this.state.boardData, selectedPawn);
+        boardData = this.updateCanMoveArea(boardData, selectedPawn);
 
         this.setState({selectedPawn: selectedPawn, boardData: boardData});
     },
