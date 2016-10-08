@@ -131,7 +131,11 @@ var Game = React.createClass({
 
     updateCanMoveArea: function(boardData, selectedPawn) {
         boardData.forEach(function(squareData, index) {
-            squareData.isHighlighted = this.isAllowedMove(selectedPawn, index);
+            if (squareData.fig !== '') {
+                squareData.isHighlighted = false;
+            } else {
+                squareData.isHighlighted = this.isAllowedMove(selectedPawn, index);
+            }
         }, this);
 
         return boardData;
