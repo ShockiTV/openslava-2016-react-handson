@@ -21,6 +21,16 @@
 //     document.getElementById('app')
 // );
 
+function toXY(index) {
+    return (index != null)
+    ? {x: index % 8, y: Math.floor(index / 8)}
+    : {x: -10, y: -10};
+};
+
+function toIndex(x, y) {
+    return y * 8 + x;
+};
+
 // Step 4 - drawing an chessboard
 // I prefer to start bottom-up, because this way I'm always working with something that
 // already exists. If I were to build the Board first, I wouldn't see my results until
@@ -53,7 +63,8 @@ var Square = React.createClass({
             backgroundColor: fill,
             color: stroke,
             width: '100%',
-            height: '100%'
+            height: '100%',
+            textAlign: 'center'
         }}>
             {this.props.children}
         </div>
@@ -62,25 +73,24 @@ var Square = React.createClass({
 });
 
 var Board = React.createClass({
-  handleSquareClick: function(x, y) {
-      this.props.onClick(x, y);
+  handleSquareClick: function(index) {
+      this.props.onClick(index);
   },
 
-  renderSquare: function (i) {
-      var x = i % 8;
-      var y = Math.floor(i / 8);
-      var isBlack = (x + y) % 2 === 1;
+  renderSquare: function (index) {
+      var xy = toXY(index);
+      var isBlack = ((xy.x + xy.y) % 2) === 1;
 
-      var isHighlighted = this.props.boardData[i].isHighlighted;
-      var isSelected = (i === this.props.selectedPawn);
-      var piece = (this.props.boardData[i].fig === 'w') ? <Pawn /> : null;
+      var isHighlighted = this.props.boardData[index].isHighlighted;
+      var isSelected = (index === this.props.selectedPawn);
+      var piece = (this.props.boardData[index].fig === 'w') ? <Pawn /> : null;
       var cursor = (isHighlighted || piece) ? 'pointer' : 'auto';
 
       return (
         <div
-            key={i}
+            key={index}
             style={{ width: '12.5%', height: '12.5%', cursor: cursor }}
-            onClick={this.handleSquareClick.bind(this, x, y)}
+            onClick={this.handleSquareClick.bind(this, index)}
         >
             <Square isBlack={isBlack} isSelected={isSelected} isHighlighted={isHighlighted}>
               {piece}
@@ -108,59 +118,47 @@ var Board = React.createClass({
   }
 });
 
-function toXY(index) {
-    return (index != null)
-        ? {x: index % 8, y: Math.floor(index / 8)}
-        : {x: -10, y: -10};
+function canSelectPawn(boardData, index) {
+    return (boardData[index].fig === 'w');
 };
 
-function toIndex(x, y) {
-    return y * 8 + x;
+function isAllowedMove(fromIndex, toIndex) {
+    var from = toXY(fromIndex);
+    var to = toXY(toIndex);
+    return (Math.abs(from.x - to.x) === 1 && Math.abs(from.y - to.y) === 1)
+};
+
+function updateCanMoveArea(boardData, selectedPawn) {
+    boardData.forEach(function(squareData, index) {
+        if (squareData.fig !== '') {
+            squareData.isHighlighted = false;
+        } else {
+            squareData.isHighlighted = isAllowedMove(selectedPawn, index);
+        }
+    });
+
+    return boardData;
 };
 
 var Game = React.createClass({
-    canSelectPawn: function(index) {
-        return (this.state.boardData[index].fig === 'w');
-    },
-
-    isAllowedMove: function(fromIndex, toIndex) {
-        var from = toXY(fromIndex);
-        var to = toXY(toIndex);
-        return (Math.abs(from.x - to.x) === 1 && Math.abs(from.y - to.y) === 1)
-    },
-
-    updateCanMoveArea: function(boardData, selectedPawn) {
-        boardData.forEach(function(squareData, index) {
-            if (squareData.fig !== '') {
-                squareData.isHighlighted = false;
-            } else {
-                squareData.isHighlighted = this.isAllowedMove(selectedPawn, index);
-            }
-        }, this);
-
-        return boardData;
-    },
-
-    handleClick: function(x, y) {
-        var index = y * 8 + x;
-
+    handleClick: function(index) {
         var boardData = this.state.boardData;
 
         // If pawn selected, check if we move the Pawn
         // REMOVE '!= null' and watch first Pawn
         if (this.state.selectedPawn != null) {
-            if (this.isAllowedMove(this.state.selectedPawn, toIndex(x, y))) {
-                if (boardData[toIndex(x, y)].fig === '') {
+            if (isAllowedMove(this.state.selectedPawn, index)) {
+                if (boardData[index].fig === '') {
                     // move Pawn
-                    boardData[toIndex(x, y)].fig = boardData[this.state.selectedPawn].fig;
+                    boardData[index].fig = boardData[this.state.selectedPawn].fig;
                     boardData[this.state.selectedPawn].fig = '';
                 }
             }
         }
 
-        var selectedPawn = (this.canSelectPawn(index) && index !== this.state.selectedPawn) ? index : null;
+        var selectedPawn = (canSelectPawn(boardData, index) && index !== this.state.selectedPawn) ? index : null;
 
-        boardData = this.updateCanMoveArea(boardData, selectedPawn);
+        boardData = updateCanMoveArea(boardData, selectedPawn);
 
         this.setState({selectedPawn: selectedPawn, boardData: boardData});
     },
