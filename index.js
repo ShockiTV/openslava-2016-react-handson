@@ -201,25 +201,51 @@ function getInitialState() {
 
     var selectedPawn = null;
 
-    return { board: { boardData: boardData, selectedPawn: selectedPawn } };
+    return { boardData: boardData, selectedPawn: selectedPawn };
 };
 
-function boardReducer(state, action) {
-    if (typeof state === 'undefined') {
+function boardReducer(stateold, action) {
+    if (typeof stateold === 'undefined') {
         return getInitialState();
     }
 
     switch (action.type) {
+        case 'SQUARECLICK':
+            var state = JSON.parse(JSON.stringify(stateold)); // without this
+            var index = action.index;
+            var boardData = state.boardData;
+
+            // If pawn selected, check if we move the Pawn
+            // REMOVE '!= null' and watch first Pawn
+            if (state.selectedPawn != null) {
+                if (isAllowedMove(state.selectedPawn, index)) {
+                    if (boardData[index].fig === '') {
+                        // move Pawn
+                        boardData[index].fig = boardData[state.selectedPawn].fig;
+                        boardData[state.selectedPawn].fig = '';
+                    }
+                }
+            }
+
+            var selectedPawn = (canSelectPawn(boardData, index) && index !== state.selectedPawn) ? index : null;
+
+            boardData = updateCanMoveArea(boardData, selectedPawn);
+
+            return {
+                selectedPawn: selectedPawn,
+                boardData: boardData
+            };
         default:
-            return state;
+            return stateold;
     }
 };
 
 let store = Redux.createStore(boardReducer, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
 
-var clickOnSquareAction = function() {
+var clickOnSquareAction = function(index) {
     return {
-        type: 'SQUARECLICK'
+        type: 'SQUARECLICK',
+        index: index
     };
 };
 
@@ -236,33 +262,25 @@ var BoardContainer = React.createClass({
 });
 const mapStateToProps = (state) => {
     return {
-        boardData: state.board.boardData,
-        selectedPawn: state.board.selectedPawn
+        boardData: state.boardData,
+        selectedPawn: state.selectedPawn
     }
 };
 const mapDispatchToProps = { clickOnSquareAction };
 BoardContainer = ReactRedux.connect(mapStateToProps, mapDispatchToProps)(BoardContainer);
 
 
-//
-//
-//
-// const Message = (props) => (
-//     <div>
-//         <h1>Hello {props.name}, second version !</h1>
-//         <p>Current count is {props.count}</p>
-//     </div>
-// );
-//
-// const mapStateToProps = (state) => {
-//   return {
-//     count: state
-//   }
-// }
-// const MessageContainer = ReactRedux.connect(mapStateToProps)(Message);
-//
-//
-//
+
+
+
+
+
+
+
+
+
+
+
 const App = (props) => (
     <ReactRedux.Provider store={store}>
         <BoardContainer />
