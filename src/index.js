@@ -1,7 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+import App from './app.js';
+
 ReactDOM.render(
-    <h1>Hello OpenSlava!</h1>,
+    <App name="Peter" />,
     document.getElementById('root')
 );
