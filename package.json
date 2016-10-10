@@ -1,14 +1,18 @@
 {
-  "name": "openslava",
+  "name": "open2",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "react-scripts start"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "http-server": "^0.9.0"
+    "react-scripts": "^0.6.1"
+  },
+  "dependencies": {
+    "react": "^15.3.2",
+    "react-dom": "^15.3.2"
   }
 }
