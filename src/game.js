@@ -42,6 +42,18 @@ class Game extends React.Component {
         var boardData = this.state.boardData;
         var selectedPawn = (canSelectPawn(boardData, index) && index !== this.state.selectedPawn) ? index : null;
 
+        // If pawn selected, check if we move the Pawn
+        // REMOVE '!= null' and watch first Pawn
+        if (this.state.selectedPawn != null) {
+            if (isAllowedMove(this.state.selectedPawn, index)) {
+                if (boardData[index].fig === '') {
+                    // move Pawn
+                    boardData[index].fig = boardData[this.state.selectedPawn].fig;
+                    boardData[this.state.selectedPawn].fig = '';
+                }
+            }
+        }
+
         boardData = updateCanMoveArea(boardData, selectedPawn);
 
         this.setState({selectedPawn: selectedPawn, boardData: boardData});
