@@ -9,6 +9,10 @@ class Square extends React.Component {
           stroke = 'red';
       }
 
+      if (this.props.isHighlighted) {
+          fill = this.props.isBlack ? 'green' : 'yellow';
+      }
+
       return (
           <div style={{
               backgroundColor: fill,

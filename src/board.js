@@ -13,8 +13,7 @@ class Board extends React.Component {
         var y = Math.floor(index / 8);
         var isBlack = ((x + y) % 2) === 1;
 
-        // var isHighlighted = this.props.boardData[index].isHighlighted;
-        var isHighlighted = false;
+        var isHighlighted = this.props.boardData[index].isHighlighted;
         var isSelected = (index === this.props.selectedPawn);
         var piece = (this.props.boardData[index].fig === 'w') ? <Pawn /> : null;
         var cursor = (isHighlighted || piece) ? 'pointer' : 'auto';
@@ -25,8 +24,7 @@ class Board extends React.Component {
               style={{ width: '12.5%', height: '12.5%', cursor: cursor }}
               onClick={this.handleSquareClick.bind(this, index)}
           >
-              {/* isHighlighted={isHighlighted} */}
-              <Square isBlack={isBlack} isSelected={isSelected}>
+              <Square isBlack={isBlack} isSelected={isSelected} isHighlighted={isHighlighted}>
                 {piece}
               </Square>
           </div>

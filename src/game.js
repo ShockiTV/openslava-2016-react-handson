@@ -6,6 +6,30 @@ let canSelectPawn = function(boardData, index) {
     return (boardData[index].fig === 'w');
 };
 
+let toXY = function(index) {
+    return (index != null)
+        ? {x: index % 8, y: Math.floor(index / 8)}
+        : {x: -10, y: -10};
+};
+
+let isAllowedMove = function(fromIndex, toIndex) {
+    var from = toXY(fromIndex);
+    var to = toXY(toIndex);
+    return (Math.abs(from.x - to.x) === 1 && Math.abs(from.y - to.y) === 1)
+};
+
+let updateCanMoveArea = function(boardData, selectedPawn) {
+    boardData.forEach(function(squareData, index) {
+        if (squareData.fig !== '') {
+            squareData.isHighlighted = false;
+        } else {
+            squareData.isHighlighted = isAllowedMove(selectedPawn, index);
+        }
+    });
+
+    return boardData;
+};
+
 class Game extends React.Component {
 
     constructor(props) {
@@ -18,7 +42,9 @@ class Game extends React.Component {
         var boardData = this.state.boardData;
         var selectedPawn = (canSelectPawn(boardData, index) && index !== this.state.selectedPawn) ? index : null;
 
-        this.setState({selectedPawn: selectedPawn});
+        boardData = updateCanMoveArea(boardData, selectedPawn);
+
+        this.setState({selectedPawn: selectedPawn, boardData: boardData});
     }
 
     /* Invoked once before the component is mounted.
