@@ -11,7 +11,7 @@ class Board extends React.Component {
 
         // var isHighlighted = this.props.boardData[index].isHighlighted;
         // var isSelected = (index === this.props.selectedPawn);
-        // var piece = (this.props.boardData[index].fig === 'w') ? <Pawn /> : null;
+        var piece = (this.props.boardData[index].fig === 'w') ? <Pawn /> : null;
         // var cursor = (isHighlighted || piece) ? 'pointer' : 'auto';
 
         return (
@@ -22,7 +22,7 @@ class Board extends React.Component {
           >
               {/* isSelected={isSelected} isHighlighted={isHighlighted} */}
               <Square isBlack={isBlack}>
-                <Pawn />
+                {piece}
               </Square>
           </div>
         );
