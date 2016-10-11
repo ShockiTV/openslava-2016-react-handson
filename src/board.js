@@ -4,24 +4,29 @@ import Pawn from './pawn.js';
 
 class Board extends React.Component {
 
+    handleSquareClick(index) {
+        this.props.onClick(index);
+    }
+
     renderSquare(index) {
         var x = index % 8;
         var y = Math.floor(index / 8);
         var isBlack = ((x + y) % 2) === 1;
 
         // var isHighlighted = this.props.boardData[index].isHighlighted;
-        // var isSelected = (index === this.props.selectedPawn);
+        var isHighlighted = false;
+        var isSelected = (index === this.props.selectedPawn);
         var piece = (this.props.boardData[index].fig === 'w') ? <Pawn /> : null;
-        // var cursor = (isHighlighted || piece) ? 'pointer' : 'auto';
+        var cursor = (isHighlighted || piece) ? 'pointer' : 'auto';
 
         return (
-          // onClick={this.handleSquareClick.bind(this, index)}
           <div
               key={index}
-              style={{ width: '12.5%', height: '12.5%' }}
+              style={{ width: '12.5%', height: '12.5%', cursor: cursor }}
+              onClick={this.handleSquareClick.bind(this, index)}
           >
-              {/* isSelected={isSelected} isHighlighted={isHighlighted} */}
-              <Square isBlack={isBlack}>
+              {/* isHighlighted={isHighlighted} */}
+              <Square isBlack={isBlack} isSelected={isSelected}>
                 {piece}
               </Square>
           </div>
