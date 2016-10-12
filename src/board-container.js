@@ -19,8 +19,8 @@ class BoardContainer extends React.Component {
 
 const mapStateToProps = (state) => {
     return {
-        boardData: state.boardData,
-        selectedPawn: state.selectedPawn
+        boardData: state.boardReducer.boardData,
+        selectedPawn: state.boardReducer.selectedPawn
     }
 };
 const mapDispatchToProps = { clickOnSquareAction };
